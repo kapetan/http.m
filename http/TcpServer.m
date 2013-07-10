@@ -32,8 +32,8 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
 }
 
 void TcpServerReleaseDelegate(TcpServer *server) {
-    if([[server delegate] isKindOfClass:[TcpServerBlockDelegate class]]) {
-        [[server delegate] release];
+    if([server.delegate isKindOfClass:[TcpServerBlockDelegate class]]) {
+        [server.delegate release];
     }
 }
 
@@ -49,14 +49,22 @@ void TcpServerReleaseDelegate(TcpServer *server) {
 -(void) serverDidClose:(TcpServer *)server {
     if(self.close) self.close(server);
 }
+
+-(void) dealloc {
+    [self.accept release];
+    [self.error release];
+    [self.close release];
+    
+    [super dealloc];
+}
 @end
 
 @implementation TcpServer {
     CFSocketRef ipv4Socket;
     CFSocketRef ipv6Socket;
-    
-    id delegate;
 }
+
+@synthesize delegate;
 
 -(id) init {
     if(self = [super init]) {
@@ -131,6 +139,10 @@ void TcpServerReleaseDelegate(TcpServer *server) {
 }
 
 -(void) close {
+    if(!ipv4Socket && !ipv6Socket) {
+        return;
+    }
+    
     if(ipv4Socket) {
         CFSocketInvalidate(ipv4Socket);
         CFRelease(ipv4Socket);
@@ -140,11 +152,10 @@ void TcpServerReleaseDelegate(TcpServer *server) {
         CFRelease(ipv6Socket);
     }
     
+    ipv4Socket = nil;
+    ipv6Socket = nil;
+    
     [[self delegate] serverDidClose:self];
-}
-
--(id) delegate {
-    return delegate;
 }
 
 -(void) setDelegate:(id)newDelegate {
@@ -167,7 +178,10 @@ void TcpServerReleaseDelegate(TcpServer *server) {
         NSInputStream *ins = (NSInputStream *) read;
         
         TcpConnection *connection = [[TcpConnection alloc] initWithInputStream:ins outputStream:outs];
+        
         [connection open];
+        [connection autorelease];
+        
         [[self delegate] server:self acceptedConnection:connection];
     } else {
         close(handle);

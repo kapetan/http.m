@@ -11,7 +11,6 @@
 @class TcpConnection;
 
 @protocol TcpConnectionDelegate
-@optional
 -(void) connectionDidOpen:(TcpConnection*)connection;
 -(void) connectionDidClose:(TcpConnection*)connection;
 -(void) connection:(TcpConnection*)connection errorOccurred:(NSError*)error;
@@ -28,6 +27,8 @@
 @end
 
 @interface TcpConnection : NSObject <NSStreamDelegate>
+@property (assign, nonatomic) id delegate;
+
 -(id) initWithInputStream:(NSInputStream*)ins outputStream:(NSOutputStream*)outs;
 -(id) initWithHost:(NSString*)host port:(NSInteger)port;
 
@@ -37,7 +38,4 @@
 -(BOOL) write:(uint8_t*)data length:(NSUInteger)length;
 -(BOOL) write:(NSData*)data;
 -(BOOL) write:(NSString*)data encoding:(NSStringEncoding)encoding;
-
--(id) delegate;
--(void) setDelegate:(id)newDelegate;
 @end

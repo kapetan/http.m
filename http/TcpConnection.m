@@ -12,8 +12,8 @@ NSUInteger const TcpConnectionBufferLength = 16 * 1024;
 NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 
 void TcpConnectionReleaseDelegate(TcpConnection *connection) {
-    if([[connection delegate] isKindOfClass:[TcpConnectionBlockDelegate class]]) {
-        [[connection delegate] release];
+    if([connection.delegate isKindOfClass:[TcpConnectionBlockDelegate class]]) {
+        [connection.delegate release];
     }
 }
 
@@ -37,6 +37,16 @@ void TcpConnectionReleaseDelegate(TcpConnection *connection) {
 -(void) connection:(TcpConnection *)connection didReceiveData:(NSData *)data {
     if(self.data) self.data(connection, data);
 }
+
+-(void) dealloc {
+    [self.open release];
+    [self.drain release];
+    [self.close release];
+    [self.error release];
+    [self.data release];
+    
+    [super dealloc];
+}
 @end
 
 @implementation TcpConnection {
@@ -45,12 +55,13 @@ void TcpConnectionReleaseDelegate(TcpConnection *connection) {
     NSMutableData *buffer;
     
     NSInteger bufferPosition;
-    id delegate;
     
     NSInteger open;
     BOOL bufferFull;
     BOOL closeOnDrain;
 }
+
+@synthesize delegate;
 
 -(id)init {
     if(self = [super init]) {
@@ -143,10 +154,6 @@ void TcpConnectionReleaseDelegate(TcpConnection *connection) {
 
 -(BOOL) write:(NSString *)data encoding:(NSStringEncoding)encoding {
     return [self write:[data dataUsingEncoding:encoding]];
-}
-
--(id) delegate {
-    return delegate;
 }
 
 -(void) setDelegate:(id)newDelegate {

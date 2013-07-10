@@ -12,6 +12,7 @@ extern NSString *const HttpErrorDomain;
 
 enum {
     HttpErrorUnparsableHeader = 0,
+    HttpErrorUnexpectedBody,
     HttpErrorConnectionFailed,
 };
 
