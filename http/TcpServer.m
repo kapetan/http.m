@@ -31,34 +31,6 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
     [server acceptConnection:handle];
 }
 
-void TcpServerReleaseDelegate(TcpServer *server) {
-    if([server.delegate isKindOfClass:[TcpServerBlockDelegate class]]) {
-        [server.delegate release];
-    }
-}
-
-@implementation TcpServerBlockDelegate
--(void) server:(TcpServer *)server acceptedConnection:(TcpConnection *)connection {
-    if(self.accept) self.accept(server, connection);
-}
-
--(void) server:(TcpServer *)server errorOccurred:(NSError *)error {
-    if(self.error) self.error(server, error);
-}
-
--(void) serverDidClose:(TcpServer *)server {
-    if(self.close) self.close(server);
-}
-
--(void) dealloc {
-    [self.accept release];
-    [self.error release];
-    [self.close release];
-    
-    [super dealloc];
-}
-@end
-
 @implementation TcpServer {
     CFSocketRef ipv4Socket;
     CFSocketRef ipv6Socket;
@@ -68,7 +40,7 @@ void TcpServerReleaseDelegate(TcpServer *server) {
 
 -(id) init {
     if(self = [super init]) {
-        self->delegate = [[TcpServerBlockDelegate alloc] init];
+        self->delegate = nil;
     }
     
     return self;
@@ -159,7 +131,6 @@ void TcpServerReleaseDelegate(TcpServer *server) {
 }
 
 -(void) setDelegate:(id)newDelegate {
-    TcpServerReleaseDelegate(self);
     delegate = newDelegate;
 }
 
@@ -193,8 +164,6 @@ void TcpServerReleaseDelegate(TcpServer *server) {
 
 -(void) dealloc {
     [self close];
-    TcpServerReleaseDelegate(self);
-    
     [super dealloc];
 }
 @end

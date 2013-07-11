@@ -18,14 +18,6 @@
 -(void) connection:(TcpConnection*)connection didReceiveData:(NSData *)data;
 @end
 
-@interface TcpConnectionBlockDelegate : NSObject <TcpConnectionDelegate>
-@property (nonatomic, copy) void (^open)(TcpConnection *connection);
-@property (nonatomic, copy) void (^close)(TcpConnection *connection);
-@property (nonatomic, copy) void (^error)(TcpConnection *connection, NSError *error);
-@property (nonatomic, copy) void (^drain)(TcpConnection *connection);
-@property (nonatomic, copy) void (^data)(TcpConnection *connection, NSData *data);
-@end
-
 @interface TcpConnection : NSObject <NSStreamDelegate>
 @property (assign, nonatomic) id delegate;
 

@@ -24,12 +24,6 @@ enum {
 -(void) server:(TcpServer*)server acceptedConnection:(TcpConnection*)connection;
 @end
 
-@interface TcpServerBlockDelegate : NSObject <TcpServerDelegate>
-@property (nonatomic, copy) void (^close)(TcpServer *server);
-@property (nonatomic, copy) void (^error)(TcpServer *server, NSError *error);
-@property (nonatomic, copy) void (^accept)(TcpServer *server, TcpConnection *connection);
-@end
-
 @interface TcpServer : NSObject
 @property (assign, nonatomic) id delegate;
 

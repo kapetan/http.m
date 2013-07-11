@@ -131,9 +131,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     
     if(!header) {
         // Invalid header
-        connection.delegate = nil;
         [connection close];
-        
         return;
     }
     
@@ -165,8 +163,6 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     
     if(bodyLength < 0) {
         [request.delegate request:request errorOccuredd:NSErrorWithReason(HttpErrorUnexpectedBody, @"Unexpected body length")];
-        
-        connection.delegate = nil;
         [connection close];
         
         return;

@@ -11,44 +11,6 @@
 NSUInteger const TcpConnectionBufferLength = 16 * 1024;
 NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 
-void TcpConnectionReleaseDelegate(TcpConnection *connection) {
-    if([connection.delegate isKindOfClass:[TcpConnectionBlockDelegate class]]) {
-        [connection.delegate release];
-    }
-}
-
-@implementation TcpConnectionBlockDelegate
--(void) connectionDidOpen:(TcpConnection *)connection {
-    if(self.open) self.open(connection);
-}
-
--(void) connectionDidDrain:(TcpConnection *)connection {
-    if(self.drain) self.drain(connection);
-}
-
--(void) connectionDidClose:(TcpConnection *)connection {
-    if(self.close) self.close(connection);
-}
-
--(void) connection:(TcpConnection *)connection errorOccurred:(NSError *)error {
-    if(self.error) self.error(connection, error);
-}
-
--(void) connection:(TcpConnection *)connection didReceiveData:(NSData *)data {
-    if(self.data) self.data(connection, data);
-}
-
--(void) dealloc {
-    [self.open release];
-    [self.drain release];
-    [self.close release];
-    [self.error release];
-    [self.data release];
-    
-    [super dealloc];
-}
-@end
-
 @implementation TcpConnection {
     NSOutputStream *output;
     NSInputStream *input;
@@ -70,7 +32,7 @@ void TcpConnectionReleaseDelegate(TcpConnection *connection) {
         self->buffer = [[NSMutableData alloc] initWithCapacity:TcpConnectionBufferLength];
         
         self->bufferPosition = 0;
-        self->delegate = [[TcpConnectionBlockDelegate alloc] init];
+        self->delegate = nil;
         
         self->open = 0;
         self->bufferFull = NO;
@@ -157,7 +119,6 @@ void TcpConnectionReleaseDelegate(TcpConnection *connection) {
 }
 
 -(void) setDelegate:(id)newDelegate {
-    TcpConnectionReleaseDelegate(self);
     delegate = newDelegate;
 }
 
@@ -236,7 +197,6 @@ void TcpConnectionReleaseDelegate(TcpConnection *connection) {
     [buffer release];
     [input release];
     [output release];
-    TcpConnectionReleaseDelegate(self);
     
     [super dealloc];
 }
