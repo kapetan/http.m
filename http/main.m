@@ -18,21 +18,25 @@ int main(int argc, const char * argv[]) {
         delegate.request = ^(HttpServer *server, HttpServerRequest *request, HttpServerResponse *response) {
             NSLog(@"Request received");
             
-            HttpServerRequestBlockDelegate *delegate = request.delegate;
+            HttpServerRequestBlockDelegate *requestDelegate = request.delegate;
+            HttpServerResponseBlockDelegate *responseDelegate = response.delegate;
             
-            delegate.data = ^(HttpServerRequest *request, NSData *data) {
+            requestDelegate.data = ^(HttpServerRequest *request, NSData *data) {
                 NSLog(@"Request data %lu", (unsigned long)[data length]);
             };
-            delegate.end = ^(HttpServerRequest *request) {
+            requestDelegate.end = ^(HttpServerRequest *request) {
                 NSLog(@"Request end");
                 
-                //response.header.contentLength = 5;
-                
+                [response writeHeaderStatus:HttpStatusCodeOk headers:@{ @"content-length" : @"5" }];
                 [response write:@"HELLO" encoding:NSASCIIStringEncoding];
                 [response end];
             };
-            delegate.error = ^(HttpServerRequest *request, NSError *error) {
+            requestDelegate.error = ^(HttpServerRequest *request, NSError *error) {
                 NSLog(@"Request error - %@", error);
+            };
+            
+            responseDelegate.end = ^(HttpServerResponse *response) {
+                NSLog(@"%@ -> %@", [request.header lineToString], [response.header lineToString]);
             };
         };
         

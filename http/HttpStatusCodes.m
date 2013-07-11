@@ -36,6 +36,6 @@ NSString *const HttpStatusCodeReason[] = {
     [HttpStatusCodeHttpVersionNotSupported] = @"Http Version Not Supported"
 };
 
-NSString *HttpStatusCodeReasonPhrase(HttpStatusCode code)  {
+NSString *HttpStatusCodeReasonName(HttpStatusCode code)  {
     return HttpStatusCodeReason[code];
 }

@@ -69,7 +69,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
             header.transferEncoding = HttpHeaderTransferEncodingChunked;
         }
         
-        [self writeHeaderStatus:HttpStatusCodeOk];
+        [self writeHeaderStatus:header.statusCode];
     }
     
     [self writeChunkHeader:length];
@@ -93,11 +93,11 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     }
     
     header.statusCode = status;
-    header.reasonPhrase = reason ? reason : HttpStatusCodeReasonPhrase(status);
+    if(reason) header.reasonPhrase = reason;
     
     if(headers) {
         for(NSString *key in headers) {
-            [header setField:key byName:[headers objectForKey:key]];
+            [header setField:[headers objectForKey:key] byName:key];
         }
     }
     if(!header.date) {
@@ -121,7 +121,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 }
 
 -(void) end {
-    [self writeHeaderStatus:HttpStatusCodeOk];
+    [self writeHeaderStatus:header.statusCode];
     [self writeChunkHeader:0];
     [self writeChunkTrailer];
     
@@ -143,6 +143,10 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     }
     
     [connection write:@"\r\n" encoding:NSASCIIStringEncoding];
+}
+
+-(NSString *) description {
+    return [header description];
 }
 
 -(void) dealloc {

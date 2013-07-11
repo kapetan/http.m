@@ -20,7 +20,9 @@
 -(NSString*) fieldByName:(NSString*)name;
 -(void) setField:(NSString*)name byName:(NSString*)value;
 -(void) removeFieldByName:(NSString*)name;
+
 -(NSString*) toString;
+-(NSString*) lineToString;
 @end
 
 @interface HttpRequestHeader : HttpHeader

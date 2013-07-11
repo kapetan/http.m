@@ -156,6 +156,10 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     return [result autorelease];
 }
 
+-(NSString *) lineToString {
+    return [line componentsJoinedByString:@" "];
+}
+
 -(NSString*) description {
     return [headers description];
 }
@@ -180,41 +184,45 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     return self;
 }
 
--(id) initWithString:(NSString *)headers error:(NSError **)error {
-    if(self = [super initWithString:headers error:error]) {
-        self.method = HttpMethodValue([line objectAtIndex:0]);
-        self.url = [line objectAtIndex:1];
-        self.httpVersion = [line objectAtIndex:2];
-    }
-    
-    return self;
+-(HttpMethod) method {
+    return HttpMethodValue([line objectAtIndex:0]);
 }
 
--(NSString *) toString {
-    [line replaceObjectAtIndex:0 withObject:HttpMethodName(self.method)];
-    [line replaceObjectAtIndex:1 withObject:self.url];
-    [line replaceObjectAtIndex:2 withObject:self.httpVersion];
-    
-    return [super toString];
+-(void) setMethod:(HttpMethod)method {
+    [line replaceObjectAtIndex:0 withObject:HttpMethodName(method)];
+}
+
+-(NSString *) url {
+    return [line objectAtIndex:1];
+}
+
+-(void) setUrl:(NSString *)url {
+    [line replaceObjectAtIndex:1 withObject:url];
+}
+
+-(NSString *) httpVersion {
+    return [line objectAtIndex:2];
+}
+
+-(void) setHttpVersion:(NSString *)httpVersion {
+    [line replaceObjectAtIndex:2 withObject:httpVersion];
 }
 
 -(BOOL) hasBody {
     return self.contentLength > 0;
 }
-
--(void) dealloc {
-    [self.url release];
-    [self.httpVersion release];
-    
-    [super dealloc];
-}
 @end
 
-@implementation HttpResponseHeader
+@implementation HttpResponseHeader {
+    BOOL reasonPhraseAssigned;
+}
+
 -(id) init {
     if(self = [super init]) {
         self.httpVersion = @"HTTP/1.1";
         self.statusCode = HttpStatusCodeOk;
+        
+        self->reasonPhraseAssigned = NO;
     }
     
     return self;
@@ -222,12 +230,40 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 
 -(id) initWithString:(NSString *)headers error:(NSError **)error {
     if(self = [super initWithString:headers error:error]) {
-        self.httpVersion = [line objectAtIndex:0];
-        self.statusCode = [[line objectAtIndex:1] integerValue];
-        self.reasonPhrase = [line objectAtIndex:2];
+        self->reasonPhraseAssigned = NO;
     }
     
     return self;
+}
+
+-(NSString *) httpVersion {
+    return [line objectAtIndex:0];
+}
+
+-(void) setHttpVersion:(NSString *)httpVersion {
+    [line replaceObjectAtIndex:0 withObject:httpVersion];
+}
+
+-(HttpStatusCode) statusCode {
+    return (HttpStatusCode) [[line objectAtIndex:1] integerValue];
+}
+
+-(void) setStatusCode:(HttpStatusCode)statusCode {
+    [line replaceObjectAtIndex:1 withObject:[NSString stringWithFormat:@"%ld", (long) statusCode]];
+    
+    if(!reasonPhraseAssigned) {
+        self.reasonPhrase = HttpStatusCodeReasonName(HttpStatusCodeOk);
+        reasonPhraseAssigned = NO;
+    }
+}
+
+-(NSString *) reasonPhrase {
+    return [line objectAtIndex:2];
+}
+
+-(void) setReasonPhrase:(NSString *)reasonPhrase {
+    [line replaceObjectAtIndex:2 withObject:reasonPhrase];
+    reasonPhraseAssigned = YES;
 }
 
 -(HttpHeaderTransferEncoding) transferEncoding {
@@ -242,20 +278,5 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 
 -(void) setTransferEncoding:(HttpHeaderTransferEncoding)transferEncoding {
     [self setField:HttpHeaderTransferEncodingName(transferEncoding) byName:@"transfer-encoding"];
-}
-
--(NSString *) toString {
-    [line replaceObjectAtIndex:0 withObject:self.httpVersion];
-    [line replaceObjectAtIndex:1 withObject:[NSString stringWithFormat:@"%ld", (long)self.statusCode]];
-    [line replaceObjectAtIndex:2 withObject:(self.reasonPhrase ? self.reasonPhrase : HttpStatusCodeReasonPhrase(self.statusCode))];
-    
-    return [super toString];
-}
-
--(void) dealloc {
-    [self.httpVersion release];
-    [self.reasonPhrase release];
-    
-    [super dealloc];
 }
 @end

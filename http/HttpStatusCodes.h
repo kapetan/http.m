@@ -38,4 +38,4 @@ typedef enum {
 
 NSString *const HttpStatusCodeReason[HttpStatusCodeHttpVersionNotSupported + 1];
 
-NSString *HttpStatusCodeReasonPhrase(HttpStatusCode code);
+NSString *HttpStatusCodeReasonName(HttpStatusCode code);
