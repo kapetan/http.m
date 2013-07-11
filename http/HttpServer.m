@@ -93,7 +93,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) connectionDidDrain:(TcpConnection *)connection {
-    
+    [response.delegate responseDidDrain:response];
 }
 
 -(void) connectionDidClose:(TcpConnection *)connection {
@@ -137,11 +137,8 @@ void HttpServerReleaseDelegate(HttpServer *server) {
         return;
     }
     
-    HttpServerRequest *serverRequest = [[HttpServerRequest alloc] initWithConnection:connection header:header];
-    HttpServerResponse *serverResponse = NULL;
-    
-    [serverRequest autorelease];
-    [serverResponse autorelease];
+    HttpServerRequest *serverRequest = request = [[HttpServerRequest alloc] initWithConnection:connection header:header];
+    HttpServerResponse *serverResponse = response = [[HttpServerResponse alloc] initWithConnection:connection];
     
     bodyLength = serverRequest.header.contentLength;
     
@@ -150,22 +147,17 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     if([headerBuffer length] > separator) {
         // We have received part of the body
         NSData *body = [headerBuffer subdataWithRange:NSMakeRange(separator, [headerBuffer length] - separator)];
-        [self requestBody:connection data:body];
-    }
-    if(!bodyLength) {
-        [serverRequest.delegate requestDidEnd:serverRequest];
+        [self performSelector:@selector(requestBody:) withObject:@{ @"connection" : connection, @"data" : body } afterDelay:0.1];
+    } else if(!bodyLength) {
+        [serverRequest.delegate performSelector:@selector(requestDidEnd:) withObject:serverRequest afterDelay:0.1];
     }
     
     [headerBuffer release];
     headerBuffer = nil;
 }
 
--(void) dealloc {
-    [headerBuffer release];
-    [request release];
-    [response release];
-    
-    [super dealloc];
+-(void) requestBody:(NSDictionary *)arguments {
+    [self requestBody:[arguments objectForKey:@"connection"] data:[arguments objectForKey:@"data"]];
 }
 
 -(void) requestBody:(TcpConnection *)connection data:(NSData *)data {
@@ -185,6 +177,14 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     if(!bodyLength) {
         [request.delegate requestDidEnd:request];
     }
+}
+
+-(void) dealloc {
+    [headerBuffer release];
+    [request release];
+    [response release];
+    
+    [super dealloc];
 }
 @end
 

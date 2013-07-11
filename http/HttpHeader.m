@@ -22,8 +22,10 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
 
 -(id) init {
     if(self = [super init]) {
-        headers = [[NSMutableDictionary alloc] init];
-        line = [[NSMutableArray alloc] initWithCapacity:3];
+        NSNull *n = [NSNull null];
+        
+        self->headers = [[NSMutableDictionary alloc] init];
+        self->line = [[NSMutableArray alloc] initWithObjects:n, n, n, nil];
     }
     
     return self;
@@ -93,6 +95,20 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
     [headers removeObjectForKey:[name lowercaseString]];
 }
 
+-(NSInteger) contentLength {
+    NSString *length = [self fieldByName:@"content-length"];
+    
+    if(length) {
+        return [length integerValue];
+    }
+    
+    return 0;
+}
+
+-(void) setContentLength:(NSInteger)contentLength {
+    [self setField:[NSString stringWithFormat:@"%ld", (long)contentLength] byName:@"content-length"];
+}
+
 -(NSString *) toString {
     NSString *result;
     
@@ -127,7 +143,7 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
 @implementation HttpRequestHeader
 -(id) init {
     if(self = [super init]) {
-        self.method = @"GET";
+        self.method = HttpMethodGet;
         self.url = @"/";
         self.httpVersion = @"HTTP/1.1";
     }
@@ -137,7 +153,7 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
 
 -(id) initWithString:(NSString *)headers error:(NSError **)error {
     if(self = [super initWithString:headers error:error]) {
-        self.method = [line objectAtIndex:0];
+        self.method = HttpMethodValue([line objectAtIndex:0]);
         self.url = [line objectAtIndex:1];
         self.httpVersion = [line objectAtIndex:2];
     }
@@ -146,25 +162,11 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
 }
 
 -(NSString *) toString {
-    [line replaceObjectAtIndex:0 withObject:self.method];
+    [line replaceObjectAtIndex:0 withObject:HttpMethodName(self.method)];
     [line replaceObjectAtIndex:1 withObject:self.url];
     [line replaceObjectAtIndex:2 withObject:self.httpVersion];
     
     return [super toString];
-}
-
--(NSInteger) contentLength {
-    NSString *length = [self fieldByName:@"content-length"];
-    
-    if(length) {
-        return [length integerValue];
-    }
-    
-    return 0;
-}
-
--(void) setContentLength:(NSInteger)contentLength {
-    [self setField:@"content-length" byName:[NSString stringWithFormat:@"%ld", (long)contentLength]];
 }
 
 -(BOOL) hasBody {
@@ -172,7 +174,6 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
 }
 
 -(void) dealloc {
-    [self.method release];
     [self.url release];
     [self.httpVersion release];
     
@@ -198,6 +199,20 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
     }
     
     return self;
+}
+
+-(HttpHeaderTransferEncoding) transferEncoding {
+    NSString *encoding = [self fieldByName:@"transfer-encoding"];
+    
+    if(encoding) {
+        return HttpHeaderTransferEncodingValue(encoding);
+    }
+    
+    return -1;
+}
+
+-(void) setTransferEncoding:(HttpHeaderTransferEncoding)transferEncoding {
+    [self setField:HttpHeaderTransferEncodingName(transferEncoding) byName:@"transfer-encoding"];
 }
 
 -(NSString *) toString {

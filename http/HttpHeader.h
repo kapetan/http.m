@@ -9,20 +9,11 @@
 #import <Foundation/Foundation.h>
 
 #import "HttpStatusCodes.h"
+#import "HttpHeaderConstants.h"
 
-/*typedef enum {
-    HttpMethodGet,
-    HttpMethodPost,
-    HttpMethodHead,
-    HttpMethodPut,
-    HttpMethodDelete,
-    HttpMethodTrace,
-    HttpMethodOptions,
-    HttpMethodConnect,
-    HttpMethodPath
-} HttpMethod;*/
+@interface HttpHeader : NSObject
+@property (assign, nonatomic) NSInteger contentLength;
 
-@interface HttpHeader : NSObject 
 -(id) initWithString:(NSString*)headers error:(NSError**)error;
 
 -(NSString*) fieldByName:(NSString*)name;
@@ -32,11 +23,9 @@
 @end
 
 @interface HttpRequestHeader : HttpHeader
-@property (retain, nonatomic) NSString *method;
+@property (nonatomic) HttpMethod method;
 @property (retain, nonatomic) NSString *url;
 @property (retain, nonatomic) NSString *httpVersion;
-
-@property (assign, nonatomic) NSInteger contentLength;
 
 -(BOOL) hasBody;
 @end
@@ -45,4 +34,6 @@
 @property (retain, nonatomic) NSString *httpVersion;
 @property (nonatomic) HttpStatusCode statusCode;
 @property (retain, nonatomic) NSString *reasonPhrase;
+
+@property (assign, nonatomic) HttpHeaderTransferEncoding transferEncoding;
 @end

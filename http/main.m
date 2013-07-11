@@ -20,8 +20,19 @@ int main(int argc, const char * argv[]) {
             
             HttpServerRequestBlockDelegate *delegate = request.delegate;
             
+            delegate.data = ^(HttpServerRequest *request, NSData *data) {
+                NSLog(@"Request data %lu", (unsigned long)[data length]);
+            };
             delegate.end = ^(HttpServerRequest *request) {
                 NSLog(@"Request end");
+                
+                //response.header.contentLength = 5;
+                
+                [response write:@"HELLO" encoding:NSASCIIStringEncoding];
+                [response end];
+            };
+            delegate.error = ^(HttpServerRequest *request, NSError *error) {
+                NSLog(@"Request error - %@", error);
             };
         };
         
