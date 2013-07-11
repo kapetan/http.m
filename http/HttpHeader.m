@@ -13,8 +13,20 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
     return [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
+NSDateFormatter *NSDateFormatterCreateRFC1123() {
+    NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    
+    [formatter setLocale:locale];
+    [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+    [formatter setDateFormat:@"EEE',' dd MMM yyyy HH':'mm':'ss zzz"];
+    
+    return formatter;
+}
+
 @implementation HttpHeader {
     NSMutableDictionary *headers;
+    NSDateFormatter *formatter;
     
     @protected
     NSMutableArray *line;
@@ -26,6 +38,7 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
         
         self->headers = [[NSMutableDictionary alloc] init];
         self->line = [[NSMutableArray alloc] initWithObjects:n, n, n, nil];
+        self->formatter = NSDateFormatterCreateRFC1123();
     }
     
     return self;
@@ -77,6 +90,7 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
             
             self->line = [[NSMutableArray alloc] initWithArray:firstLine];
             self->headers = result;
+            self->formatter = NSDateFormatterCreateRFC1123();
         }
     }
     
@@ -109,6 +123,20 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
     [self setField:[NSString stringWithFormat:@"%ld", (long)contentLength] byName:@"content-length"];
 }
 
+-(NSDate *) date {
+    NSString *date = [self fieldByName:@"date"];
+    
+    if(date) {
+        return [formatter dateFromString:date];
+    }
+    
+    return nil;
+}
+
+-(void) setDate:(NSDate *)date {
+    [self setField:[formatter stringFromDate:date] byName:@"date"];
+}
+
 -(NSString *) toString {
     NSString *result;
     
@@ -135,6 +163,7 @@ NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
 -(void) dealloc {
     [headers release];
     [line release];
+    [formatter release];
     
     [super dealloc];
 }

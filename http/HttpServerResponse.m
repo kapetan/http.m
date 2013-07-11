@@ -100,6 +100,11 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
             [header setField:key byName:[headers objectForKey:key]];
         }
     }
+    if(!header.date) {
+        NSDate *date = [[NSDate alloc] init];
+        header.date = date;
+        [date release];
+    }
     
     [connection write:[header toString] encoding:NSASCIIStringEncoding];
     

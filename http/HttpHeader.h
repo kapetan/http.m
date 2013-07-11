@@ -13,6 +13,7 @@
 
 @interface HttpHeader : NSObject
 @property (assign, nonatomic) NSInteger contentLength;
+@property (assign, nonatomic) NSDate *date;
 
 -(id) initWithString:(NSString*)headers error:(NSError**)error;
 
