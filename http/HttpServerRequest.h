@@ -16,13 +16,11 @@
 @protocol HttpServerRequestDelegate <NSObject>
 -(void) request:(HttpServerRequest*)request didReceiveData:(NSData*)data;
 -(void) requestDidEnd:(HttpServerRequest*)request;
--(void) request:(HttpServerRequest*)request errorOccuredd:(NSError*)error;
 @end
 
 @interface HttpServerRequestBlockDelegate : NSObject <HttpServerRequestDelegate>
 @property (copy, nonatomic) void (^data)(HttpServerRequest*, NSData*);
 @property (copy, nonatomic) void (^end)(HttpServerRequest*);
-@property (copy, nonatomic) void (^error)(HttpServerRequest*, NSError*);
 @end
 
 @interface HttpServerRequest : NSObject

@@ -15,14 +15,14 @@
 
 @protocol HttpServerResponseDelegate <NSObject>
 -(void) responseDidEnd:(HttpServerResponse*)response;
--(void) response:(HttpServerResponse*)response errorOccurred:(NSError*)error;
 -(void) responseDidDrain:(HttpServerResponse*)response;
+-(void) responseDidClose:(HttpServerResponse*)response;
 @end
 
 @interface HttpServerResponseBlockDelegate : NSObject <HttpServerResponseDelegate>
 @property (copy, nonatomic) void (^end)(HttpServerResponse*);
-@property (copy, nonatomic) void (^error)(HttpServerResponse*, NSError*);
 @property (copy, nonatomic) void (^drain)(HttpServerResponse*);
+@property (copy, nonatomic) void (^close)(HttpServerResponse*);
 @end
 
 @interface HttpServerResponse : NSObject
@@ -30,6 +30,8 @@
 @property (readonly, nonatomic) TcpConnection *connection;
 
 @property (assign, nonatomic) id delegate;
+
+@property (readonly, nonatomic) BOOL ended;
 
 -(id) initWithConnection:(TcpConnection*)connection;
 

@@ -20,6 +20,7 @@
 -(void) serverDidClose:(HttpServer*)server;
 -(void) server:(HttpServer*)server acceptedConnection:(TcpConnection*)connection;
 -(void) server:(HttpServer*)server errorOccurred:(NSError*)error;
+-(void) server:(HttpServer*)server client:(TcpConnection*)connection errorOccurred:(NSError*)error;
 @end
 
 @interface HttpServerBlockDelegate : NSObject <HttpServerDelegate>
@@ -27,6 +28,7 @@
 @property (copy, nonatomic) void (^close)(HttpServer*);
 @property (copy, nonatomic) void (^accept)(HttpServer*, TcpConnection*);
 @property (copy, nonatomic) void (^error)(HttpServer*, NSError*);
+@property (copy, nonatomic) void (^clientError)(HttpServer*, TcpConnection*, NSError*);
 @end
 
 @interface HttpServerAcceptDelegate : NSObject <TcpServerDelegate>

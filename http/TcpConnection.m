@@ -65,6 +65,10 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
     return self;
 }
 
+-(NSUInteger) bufferSize {
+    return [buffer length];
+}
+
 -(void) open {
     for (NSStream *stream in @[input, output]) {
         [stream setDelegate:self];
@@ -189,6 +193,9 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
         bufferPosition = 0;
         [buffer setLength:0];
     }
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self.delegate selector:@selector(connectionDidSendData:) object:self];
+    [[self delegate] performSelector:@selector(connectionDidSendData:) withObject:self afterDelay:0];
 }
 
 -(void)dealloc {

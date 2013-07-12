@@ -31,12 +31,12 @@ int main(int argc, const char * argv[]) {
                 [response write:@"HELLO" encoding:NSASCIIStringEncoding];
                 [response end];
             };
-            requestDelegate.error = ^(HttpServerRequest *request, NSError *error) {
-                NSLog(@"Request error - %@", error);
-            };
             
             responseDelegate.end = ^(HttpServerResponse *response) {
                 NSLog(@"%@ -> %@", [request.header lineToString], [response.header lineToString]);
+            };
+            responseDelegate.close = ^(HttpServerResponse *response) {
+                NSLog(@"Response close");
             };
         };
         

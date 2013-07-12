@@ -15,10 +15,6 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 }
 
 @implementation HttpServerResponseBlockDelegate
--(void) response:(HttpServerResponse *)response errorOccurred:(NSError *)error {
-    if(self.error) self.error(response, error);
-}
-
 -(void) responseDidDrain:(HttpServerResponse *)response {
     if(self.drain) self.drain(response);
 }
@@ -27,10 +23,14 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     if(self.end) self.end(response);
 }
 
+-(void) responseDidClose:(HttpServerResponse *)response {
+    if(self.close) self.close(response);
+}
+
 -(void) dealloc {
-    [self.error release];
     [self.drain release];
     [self.end release];
+    [self.close release];
     
     [super dealloc];
 }
@@ -44,6 +44,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 @synthesize header;
 @synthesize connection;
 @synthesize delegate;
+@synthesize ended;
 
 -(id) initWithConnection:(id)conn {
     if(self = [super init]) {
@@ -125,8 +126,8 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     [self writeChunkHeader:0];
     [self writeChunkTrailer];
     
+    ended = YES;
     [connection closeAfterDrain];
-    [self.delegate responseDidEnd:self];
 }
 
 -(void) writeChunkHeader:(NSUInteger)length {

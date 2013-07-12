@@ -19,17 +19,12 @@ void HttpServerRequestReleaseDelegate(HttpServerRequest *request) {
     if(self.data) self.data(request, data);
 }
 
--(void) request:(HttpServerRequest *)request errorOccuredd:(NSError *)error {
-    if(self.error) self.error(request, error);
-}
-
 -(void) requestDidEnd:(HttpServerRequest *)request {
     if(self.end) self.end(request);
 }
 
 -(void) dealloc {
     [self.data release];
-    [self.error release];
     [self.end release];
     
     [super dealloc];

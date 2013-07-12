@@ -16,10 +16,12 @@
 -(void) connection:(TcpConnection*)connection errorOccurred:(NSError*)error;
 -(void) connectionDidDrain:(TcpConnection*)connection;
 -(void) connection:(TcpConnection*)connection didReceiveData:(NSData *)data;
+-(void) connectionDidSendData:(TcpConnection*)connection;
 @end
 
 @interface TcpConnection : NSObject <NSStreamDelegate>
 @property (assign, nonatomic) id delegate;
+@property (readonly, nonatomic) NSUInteger bufferSize;
 
 -(id) initWithInputStream:(NSInputStream*)ins outputStream:(NSOutputStream*)outs;
 -(id) initWithHost:(NSString*)host port:(NSInteger)port;

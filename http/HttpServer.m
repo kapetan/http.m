@@ -33,11 +33,16 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     if(self.error) self.error(server, error);
 }
 
+-(void) server:(HttpServer *)server client:(TcpConnection *)connection errorOccurred:(NSError *)error {
+    if(self.clientError) self.clientError(server, connection, error);
+}
+
 -(void) dealloc {
     [self.accept release];
     [self.request release];
     [self.close release];
     [self.error release];
+    [self.clientError release];
     
     [super dealloc];
 }
@@ -97,11 +102,15 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) connectionDidClose:(TcpConnection *)connection {
+    if(!response.ended || connection.bufferSize) {
+        [response.delegate responseDidClose:response];
+    }
+    
     [server removeConnection:connection];
 }
 
 -(void) connection:(TcpConnection *)connection errorOccurred:(NSError *)error {
-    
+    [server.delegate server:server client:connection errorOccurred:error];
 }
 
 -(void) connection:(TcpConnection *)connection didReceiveData:(NSData *)data {
@@ -145,26 +154,33 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     if([headerBuffer length] > separator) {
         // We have received part of the body
         NSData *body = [headerBuffer subdataWithRange:NSMakeRange(separator, [headerBuffer length] - separator)];
-        [self performSelector:@selector(requestBody:) withObject:@{ @"connection" : connection, @"data" : body } afterDelay:0.1];
+        [self performSelector:@selector(requestBody:) withObject:@[connection, body] afterDelay:0];
     } else if(!bodyLength) {
-        [serverRequest.delegate performSelector:@selector(requestDidEnd:) withObject:serverRequest afterDelay:0.1];
+        [serverRequest.delegate performSelector:@selector(requestDidEnd:) withObject:serverRequest afterDelay:0];
     }
     
     [headerBuffer release];
     headerBuffer = nil;
 }
 
--(void) requestBody:(NSDictionary *)arguments {
-    [self requestBody:[arguments objectForKey:@"connection"] data:[arguments objectForKey:@"data"]];
+-(void) connectionDidSendData:(TcpConnection *)connection {
+    if(response.ended && !connection.bufferSize) {
+        [response.delegate responseDidEnd:response];
+    }
+}
+
+-(void) requestBody:(NSArray *)arguments {
+    [self requestBody:[arguments objectAtIndex:0] data:[arguments objectAtIndex:1]];
 }
 
 -(void) requestBody:(TcpConnection *)connection data:(NSData *)data {
     bodyLength -= [data length];
     
     if(bodyLength < 0) {
-        [request.delegate request:request errorOccuredd:NSErrorWithReason(HttpErrorUnexpectedBody, @"Unexpected body length")];
-        [connection close];
+        [server.delegate server:server client:connection
+                  errorOccurred:NSErrorWithReason(HttpErrorUnexpectedBody, @"Unexpected body length")];
         
+        [connection close];
         return;
     }
     
