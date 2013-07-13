@@ -15,6 +15,7 @@ typedef enum {
     HttpStatusCodeOk = 200,
     HttpStatusCodeCreated = 201,
     HttpStatusCodeAccepted = 202,
+    HttpStatusCodeNoContent = 204,
     HttpStatusCodeMultipleChoices = 300,
     HttpStatusCodeMovedPermanently = 301,
     HttpStatusCodeFound = 302,
@@ -39,3 +40,5 @@ typedef enum {
 NSString *const HttpStatusCodeReason[HttpStatusCodeHttpVersionNotSupported + 1];
 
 NSString *HttpStatusCodeReasonName(HttpStatusCode code);
+
+BOOL HttpStatusCodeCanHaveBody(HttpStatusCode code);

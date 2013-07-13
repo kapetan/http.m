@@ -15,6 +15,7 @@ NSString *const HttpStatusCodeReason[] = {
     [HttpStatusCodeOk] = @"OK",
     [HttpStatusCodeCreated] = @"Created",
     [HttpStatusCodeAccepted] = @"Accepted",
+    [HttpStatusCodeNoContent] = @"No Content",
     [HttpStatusCodeMultipleChoices] = @"Multiple Choices",
     [HttpStatusCodeMovedPermanently] = @"Moved Permanently",
     [HttpStatusCodeFound] = @"Found",
@@ -38,4 +39,8 @@ NSString *const HttpStatusCodeReason[] = {
 
 NSString *HttpStatusCodeReasonName(HttpStatusCode code)  {
     return HttpStatusCodeReason[code];
+}
+
+BOOL HttpStatusCodeCanHaveBody(HttpStatusCode code) {
+    return code != HttpStatusCodeNoContent && code != HttpStatusCodeNotModified && !(100 <= code && code <= 199);
 }
