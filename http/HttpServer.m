@@ -159,6 +159,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
         [serverRequest.delegate performSelector:@selector(requestDidEnd:) withObject:serverRequest afterDelay:0];
     }
     
+    [header release];
     [headerBuffer release];
     headerBuffer = nil;
 }

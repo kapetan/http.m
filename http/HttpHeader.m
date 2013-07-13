@@ -21,6 +21,8 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     [formatter setDateFormat:@"EEE',' dd MMM yyyy HH':'mm':'ss zzz"];
     
+    [locale release];
+    
     return formatter;
 }
 

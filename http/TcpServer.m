@@ -151,9 +151,10 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
         TcpConnection *connection = [[TcpConnection alloc] initWithInputStream:ins outputStream:outs];
         
         [connection open];
-        [connection autorelease];
         
         [[self delegate] server:self acceptedConnection:connection];
+        
+        [connection release];
     } else {
         close(handle);
     }

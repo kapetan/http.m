@@ -32,7 +32,7 @@ int main(int argc, const char * argv[]) {
                 
                 //NSData *file = [NSData dataWithContentsOfFile:@"/Users/mirza/Downloads/CocoaEcho/Server/EchoServer.m"];
                 
-                [response.header setValue:@"content-type" forField:@"text/plain"];
+                [response.header setValue:@"text/plain" forField:@"content-type"];
                 //response.header.contentLength = [file length];
                 
                 //[response writeHeaderStatus:HttpStatusCodeOk headers:@{ @"content-length" : @"5" }];
