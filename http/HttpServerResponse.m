@@ -135,7 +135,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
         return;
     }
     
-    [connection write:[NSString stringWithFormat:@"%lu\r\n", (unsigned long)length] encoding:NSASCIIStringEncoding];
+    [connection write:[NSString stringWithFormat:@"%lx\r\n", length] encoding:NSASCIIStringEncoding];
 }
 
 -(void) writeChunkTrailer {

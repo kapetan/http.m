@@ -27,8 +27,15 @@ int main(int argc, const char * argv[]) {
             requestDelegate.end = ^(HttpServerRequest *request) {
                 NSLog(@"Request end");
                 
-                [response writeHeaderStatus:HttpStatusCodeOk headers:@{ @"content-length" : @"5" }];
-                [response write:@"HELLO" encoding:NSASCIIStringEncoding];
+                NSData *file = [NSData dataWithContentsOfFile:@"/Users/mirza/Downloads/CocoaEcho/Server/EchoServer.m"];
+                
+                [response.header setValue:@"content-type" forField:@"text/plain"];
+                //response.header.contentLength = [file length];
+                
+                //[response writeHeaderStatus:HttpStatusCodeOk headers:@{ @"content-length" : @"5" }];
+                //[response write:@"HELLO" encoding:NSASCIIStringEncoding];
+                //[response writeHeaderStatus:HttpStatusCodeOk headers:@{ @"content-type" : @"text/plain" }];
+                [response write:file];
                 [response end];
             };
             
