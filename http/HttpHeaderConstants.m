@@ -39,20 +39,3 @@ NSString *HttpMethodName(HttpMethod method) {
 HttpMethod HttpMethodValue(NSString *name) {
     return (HttpMethod) ArrayIndexOfString(HttpMethodNames, HttpMethodPath + 1, name);
 }
-
-NSString *const HttpHeaderTransferEncodingNames[] = {
-    [HttpHeaderTransferEncodingChunked] = @"chunked",
-    [HttpHeaderTransferEncodingCompress] = @"compress",
-    [HttpHeaderTransferEncodingDeflate] = @"deflate",
-    [HttpHeaderTransferEncodingGzip] = @"gzip",
-    [HttpHeaderTransferEncodingIdentity] = @"identity"
-};
-
-NSString *HttpHeaderTransferEncodingName(HttpHeaderTransferEncoding encoding) {
-    return HttpHeaderTransferEncodingNames[encoding];
-}
-
-HttpHeaderTransferEncoding HttpHeaderTransferEncodingValue(NSString *name) {
-    return (HttpHeaderTransferEncoding) ArrayIndexOfString(HttpHeaderTransferEncodingNames,
-                                                           HttpHeaderTransferEncodingIdentity + 1, name);
-}

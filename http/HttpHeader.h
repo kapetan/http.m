@@ -37,6 +37,4 @@
 @property (retain, nonatomic) NSString *httpVersion;
 @property (nonatomic) HttpStatusCode statusCode;
 @property (retain, nonatomic) NSString *reasonPhrase;
-
-@property (assign, nonatomic) HttpHeaderTransferEncoding transferEncoding;
 @end

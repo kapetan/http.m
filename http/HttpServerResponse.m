@@ -67,7 +67,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 -(BOOL) write:(uint8_t *)data length:(NSUInteger)length {
     if(!headerSent) {
         if(!header.contentLength) {
-            header.transferEncoding = HttpHeaderTransferEncodingChunked;
+            [header setField:@"chunked" byName:@"transfer-encoding"];
         }
         
         [self writeHeaderStatus:header.statusCode];
@@ -110,7 +110,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     [connection write:[header toString] encoding:NSASCIIStringEncoding];
     
     headerSent = YES;
-    chunked = header.transferEncoding == HttpHeaderTransferEncodingChunked;
+    chunked = [[header fieldByName:@"transfer-encoding"] isEqualToString:@"chunked"];
 }
 
 -(void) writeHeaderStatus:(HttpStatusCode)status headers:(NSDictionary *)headers {

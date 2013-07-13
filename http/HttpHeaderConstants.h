@@ -23,17 +23,6 @@ typedef enum {
 } HttpMethod;
 
 NSString *const HttpMethodNames[HttpMethodPath + 1];
+
 NSString *HttpMethodName(HttpMethod method);
 HttpMethod HttpMethodValue(NSString *name);
-
-typedef enum {
-    HttpHeaderTransferEncodingChunked = 0,
-    HttpHeaderTransferEncodingCompress,
-    HttpHeaderTransferEncodingDeflate,
-    HttpHeaderTransferEncodingGzip,
-    HttpHeaderTransferEncodingIdentity
-} HttpHeaderTransferEncoding;
-
-NSString *const HttpHeaderTransferEncodingNames[HttpHeaderTransferEncodingIdentity + 1];
-NSString *HttpHeaderTransferEncodingName(HttpHeaderTransferEncoding encoding);
-HttpHeaderTransferEncoding HttpHeaderTransferEncodingValue(NSString *name);

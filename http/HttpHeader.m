@@ -265,18 +265,4 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     [line replaceObjectAtIndex:2 withObject:reasonPhrase];
     reasonPhraseAssigned = YES;
 }
-
--(HttpHeaderTransferEncoding) transferEncoding {
-    NSString *encoding = [self fieldByName:@"transfer-encoding"];
-    
-    if(encoding) {
-        return HttpHeaderTransferEncodingValue(encoding);
-    }
-    
-    return -1;
-}
-
--(void) setTransferEncoding:(HttpHeaderTransferEncoding)transferEncoding {
-    [self setField:HttpHeaderTransferEncodingName(transferEncoding) byName:@"transfer-encoding"];
-}
 @end
