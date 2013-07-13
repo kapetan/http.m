@@ -17,9 +17,9 @@
 
 -(id) initWithString:(NSString*)headers error:(NSError**)error;
 
--(NSString*) fieldByName:(NSString*)name;
--(void) setField:(NSString*)name byName:(NSString*)value;
--(void) removeFieldByName:(NSString*)name;
+-(NSString*) fieldValue:(NSString*)name;
+-(void) setValue:(NSString*)value forField:(NSString*)name;
+-(void) removeField:(NSString*)name;
 
 -(NSString*) toString;
 -(NSString*) lineToString;

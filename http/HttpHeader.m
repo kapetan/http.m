@@ -97,20 +97,20 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     return self;
 }
 
--(NSString *) fieldByName:(NSString *)name {
+-(NSString *) fieldValue:(NSString *)name {
     return [headers objectForKey:[name lowercaseString]];
 }
 
--(void) setField:(NSString *)value byName:(NSString *)name {
+-(void) setValue:(NSString *)value forField:(NSString *)name {
     [headers setObject:value forKey:[name lowercaseString]];
 }
 
--(void) removeFieldByName:(NSString *)name {
+-(void) removeField:(NSString *)name {
     [headers removeObjectForKey:[name lowercaseString]];
 }
 
 -(NSInteger) contentLength {
-    NSString *length = [self fieldByName:@"content-length"];
+    NSString *length = [self fieldValue:@"content-length"];
     
     if(length) {
         return [length integerValue];
@@ -120,11 +120,11 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 }
 
 -(void) setContentLength:(NSInteger)contentLength {
-    [self setField:[NSString stringWithFormat:@"%ld", (long)contentLength] byName:@"content-length"];
+    [self setValue:[NSString stringWithFormat:@"%ld", (long)contentLength] forField:@"content-length"];
 }
 
 -(NSDate *) date {
-    NSString *date = [self fieldByName:@"date"];
+    NSString *date = [self fieldValue:@"date"];
     
     if(date) {
         return [formatter dateFromString:date];
@@ -134,7 +134,7 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 }
 
 -(void) setDate:(NSDate *)date {
-    [self setField:[formatter stringFromDate:date] byName:@"date"];
+    [self setValue:[formatter stringFromDate:date] forField:@"date"];
 }
 
 -(NSString *) toString {

@@ -67,7 +67,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 -(BOOL) write:(uint8_t *)data length:(NSUInteger)length {
     if(!headerSent) {
         if(!header.contentLength) {
-            [header setField:@"chunked" byName:@"transfer-encoding"];
+            [header setValue:@"chunked" forField:@"transfer-encoding"];
         }
         
         [self writeHeaderStatus:header.statusCode];
@@ -98,7 +98,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     
     if(headers) {
         for(NSString *key in headers) {
-            [header setField:[headers objectForKey:key] byName:key];
+            [header setValue:[headers objectForKey:key] forField:key];
         }
     }
     if(!header.date) {
@@ -110,7 +110,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     [connection write:[header toString] encoding:NSASCIIStringEncoding];
     
     headerSent = YES;
-    chunked = [[header fieldByName:@"transfer-encoding"] isEqualToString:@"chunked"];
+    chunked = [[header fieldValue:@"transfer-encoding"] isEqualToString:@"chunked"];
 }
 
 -(void) writeHeaderStatus:(HttpStatusCode)status headers:(NSDictionary *)headers {
