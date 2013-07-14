@@ -48,52 +48,50 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 
 -(id) initWithString:(NSString *)str error:(NSError **)error {
     if(self = [super init]) {
-        @autoreleasepool {
-            NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+        
+        NSArray *fields = [str componentsSeparatedByString:@"\r\n"];
+        NSArray *firstLine = [[fields objectAtIndex:0]
+                         componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        
+        NSInteger i = 1;
+        NSString *field;
+        while(i < [fields count] && [(field = [fields objectAtIndex:i]) length] > 0) {
+            NSRange separator = [field rangeOfString:@":"];
             
-            NSArray *fields = [str componentsSeparatedByString:@"\r\n"];
-            NSArray *firstLine = [[fields objectAtIndex:0]
-                             componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            
-            NSInteger i = 1;
-            NSString *field;
-            while(i < [fields count] && [(field = [fields objectAtIndex:i]) length] > 0) {
-                NSRange separator = [field rangeOfString:@":"];
-                
-                if(separator.location == NSNotFound) {
-                    if(error != NULL) {
-                        *error = NSErrorWithReason(HttpErrorUnparsableHeader, @"Invalid header field");
-                    }
-                    
-                    [self release];
-                    return nil;
-                }
-                
-                NSString *fieldName = [NSStringTrimmedByWhiteSpace([field substringToIndex:separator.location]) lowercaseString];
-                NSString *fieldValue = NSStringTrimmedByWhiteSpace([field substringFromIndex:separator.location + 1]);
-                
-                if([result objectForKey:fieldName]) {
-                    fieldValue = [NSString stringWithFormat:@"%@,%@", [result objectForKey:fieldName], fieldValue];
-                }
-                
-                [result setObject:fieldValue forKey:fieldName];
-                
-                i++;
-            }
-            
-            if([[fields objectAtIndex:i] length] != 0 || [fields count] - 1 == i) {
+            if(separator.location == NSNotFound) {
                 if(error != NULL) {
-                    *error = NSErrorWithReason(HttpErrorUnparsableHeader, @"Invalid end of headers");
+                    *error = NSErrorWithReason(HttpErrorUnparsableHeader, @"Invalid header field");
                 }
                 
                 [self release];
                 return nil;
             }
             
-            self->line = [[NSMutableArray alloc] initWithArray:firstLine];
-            self->headers = result;
-            self->formatter = NSDateFormatterCreateRFC1123();
+            NSString *fieldName = [NSStringTrimmedByWhiteSpace([field substringToIndex:separator.location]) lowercaseString];
+            NSString *fieldValue = NSStringTrimmedByWhiteSpace([field substringFromIndex:separator.location + 1]);
+            
+            if([result objectForKey:fieldName]) {
+                fieldValue = [NSString stringWithFormat:@"%@,%@", [result objectForKey:fieldName], fieldValue];
+            }
+            
+            [result setObject:fieldValue forKey:fieldName];
+            
+            i++;
         }
+        
+        if([[fields objectAtIndex:i] length] != 0 || [fields count] - 1 == i) {
+            if(error != NULL) {
+                *error = NSErrorWithReason(HttpErrorUnparsableHeader, @"Invalid end of headers");
+            }
+            
+            [self release];
+            return nil;
+        }
+        
+        self->line = [[NSMutableArray alloc] initWithArray:firstLine];
+        self->headers = result;
+        self->formatter = NSDateFormatterCreateRFC1123();
     }
     
     return self;
@@ -142,18 +140,16 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 -(NSString *) toString {
     NSString *result;
     
-    @autoreleasepool {
-        NSString *firstLine = [line componentsJoinedByString:@" "];
-        NSMutableArray *fields = [NSMutableArray arrayWithCapacity:[headers count]];
+    NSString *firstLine = [line componentsJoinedByString:@" "];
+    NSMutableArray *fields = [NSMutableArray arrayWithCapacity:[headers count]];
         
-        for(NSString *name in headers) {
-            NSString *field = [NSString stringWithFormat:@"%@: %@\r\n", name, [headers objectForKey:name]];
-            [fields addObject:field];
-        }
-        
-        result = [NSString stringWithFormat:@"%@\r\n%@\r\n", firstLine, [fields componentsJoinedByString:@""]];
-        [result retain];
+    for(NSString *name in headers) {
+        NSString *field = [NSString stringWithFormat:@"%@: %@\r\n", name, [headers objectForKey:name]];
+        [fields addObject:field];
     }
+        
+    result = [NSString stringWithFormat:@"%@\r\n%@\r\n", firstLine, [fields componentsJoinedByString:@""]];
+    [result retain];
     
     return [result autorelease];
 }

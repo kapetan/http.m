@@ -73,6 +73,8 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 @end
 
+// This is a bit ugly. TcpConnection, has a HttpServerConnectionDelegate, which owns a HttpServerRequest and HttpServerResponse,
+// which again retain the same TcpConnection. HttpServer also retains the TcpConnection in the connections array.
 @implementation HttpServerConnectionDelegate {
     NSMutableData *headerBuffer;
     NSInteger bodyLength;
