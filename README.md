@@ -47,16 +47,16 @@ int main(int argc, const char * argv[]) {
 			HttpServerRequestBlockDelegate *requestDelegate = request.delegate;
 			HttpServerResponseBlockDelegate *responseDelegate = response.delegate;
 
-			NSMutableData body = [[NSMutableData alloc] init];
+			NSMutableData *body = [[NSMutableData alloc] init];
 			
 			requestDelegate.data = ^(HttpServerRequest *request, NSData *data) {
-				[body appendData data];
+				[body appendData:data];
 			};
 			requestDelegate.end = ^(HttpServerRequest *request) {
 				NSLog(@"%@", [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding]);
 
 				response.header.statusCode = HttpStatusCodeOk;
-				[response setValue:@"text/plain" forField:@"content-type"];
+				[response.header setValue:@"text/plain" forField:@"content-type"];
 
 				// Echo the body back to the client.
 				[response write:body];
@@ -65,6 +65,7 @@ int main(int argc, const char * argv[]) {
 				[body release];
 			};
 			
+			// Only one of the following events is fired
 			responseDelegate.end = ^(HttpServerResponse *response) {
 				// All data flushed
 			};
