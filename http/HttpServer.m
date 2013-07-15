@@ -78,6 +78,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 @implementation HttpServerConnectionDelegate {
     NSMutableData *headerBuffer;
     NSInteger bodyLength;
+    BOOL connectionClosed;
     
     HttpServer *server;
     
@@ -90,6 +91,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
         self->server = httpServer;
         self->headerBuffer = [[NSMutableData alloc] init];
         self->bodyLength = 0;
+        self->connectionClosed = NO;
     }
     
     return self;
@@ -109,6 +111,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     }
     
     [server removeConnection:connection];
+    connectionClosed = YES;
 }
 
 -(void) connection:(TcpConnection *)connection errorOccurred:(NSError *)error {
@@ -153,6 +156,8 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     
     [server.delegate server:server request:serverRequest response:serverResponse];
     
+    if(connectionClosed) return;
+    
     if([headerBuffer length] > separator) {
         // We have received part of the body
         NSData *body = [headerBuffer subdataWithRange:NSMakeRange(separator, [headerBuffer length] - separator)];
@@ -188,6 +193,8 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     }
     
     [request.delegate request:request didReceiveData:data];
+    
+    if(connectionClosed) return;
     
     if(!bodyLength) {
         [request.delegate requestDidEnd:request];

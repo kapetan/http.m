@@ -7,6 +7,12 @@ static HttpServer *CreateEchoServer() {
     HttpServerBlockDelegate *serverDelegate = server.delegate;
     
     serverDelegate.request = ^(HttpServer *server, HttpServerRequest *request, HttpServerResponse *response) {
+        if(request.header.contentLength > 10 * 1024 * 1024) {
+            // Close connection if body is more than 10MB.
+            [request.connection close];
+            return;
+        }
+        
         HttpServerRequestBlockDelegate *requestDelegate = request.delegate;
         HttpServerResponseBlockDelegate *responseDelegate = response.delegate;
         
