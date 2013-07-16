@@ -10,10 +10,11 @@
 
 #import "../examples/HelloServer.m"
 #import "../examples/EchoServer.m"
+#import "../examples/FileServer.m"
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        HttpServer *server = CreateEchoServer();  //CreateHelloServer();
+        HttpServer *server = CreateFileServer(@"/Users/mirza/Documents/"); // CreateEchoServer();  //CreateHelloServer();
         
         [server listenOnPort:8080];
         
