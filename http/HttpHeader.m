@@ -48,7 +48,7 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 
 -(id) initWithString:(NSString *)str error:(NSError **)error {
     if(self = [super init]) {
-        NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *result = self->headers = [[NSMutableDictionary alloc] init];
         
         NSArray *fields = [str componentsSeparatedByString:@"\r\n"];
         NSArray *firstLine = [[fields objectAtIndex:0]
@@ -90,7 +90,6 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
         }
         
         self->line = [[NSMutableArray alloc] initWithArray:firstLine];
-        self->headers = result;
         self->formatter = NSDateFormatterCreateRFC1123();
     }
     

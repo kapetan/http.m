@@ -43,7 +43,7 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 }
 
 -(id)initWithInputStream:(NSInputStream *)ins outputStream:(NSOutputStream *)outs {
-    if([self init]) {
+    if(self = [self init]) {
         self->input = [ins retain];
         self->output = [outs retain];
     }
@@ -52,7 +52,7 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 }
 
 -(id) initWithHost:(NSString *)host port:(NSInteger)port {
-    if([self init]) {
+    if(self = [self init]) {
         CFReadStreamRef read;
         CFWriteStreamRef write;
         

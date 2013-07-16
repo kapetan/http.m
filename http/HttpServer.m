@@ -152,6 +152,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     HttpServerRequest *serverRequest = request = [[HttpServerRequest alloc] initWithConnection:connection header:header];
     HttpServerResponse *serverResponse = response = [[HttpServerResponse alloc] initWithConnection:connection];
     
+    [header release];
     bodyLength = serverRequest.header.contentLength;
     
     [server.delegate server:server request:serverRequest response:serverResponse];
@@ -166,7 +167,6 @@ void HttpServerReleaseDelegate(HttpServer *server) {
         [serverRequest.delegate performSelector:@selector(requestDidEnd:) withObject:serverRequest afterDelay:0];
     }
     
-    [header release];
     [headerBuffer release];
     headerBuffer = nil;
 }
