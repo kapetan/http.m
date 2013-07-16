@@ -60,7 +60,8 @@ static HttpServer *CreateFileServer(NSString *base) {
         BOOL exists = [fs fileExistsAtPath:url isDirectory:&isDirectory];
         
         if(!exists) {
-            [response writeHeaderStatus:HttpStatusCodeNotFound];
+            [response writeHeaderStatus:HttpStatusCodeNotFound
+                                headers:@{ @"content-type" : @"text/plain; charset=utf-8", @"transfer-encoding" : @"chunked" }];
             [response write:[NSString stringWithFormat:@"%@ - Not Found", url] encoding:NSASCIIStringEncoding];
             [response end];
             
