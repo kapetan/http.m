@@ -1,6 +1,6 @@
 # http.m
 
-An async HTTP server writen in Objective-C. Developed and tested in OS X 10.8. It has no dependencies other that the Foundation framework.
+An async HTTP server writen in Objective-C. Developed and tested in OS X 10.8. It has no dependencies other than the Foundation framework.
 
 # Usage
 

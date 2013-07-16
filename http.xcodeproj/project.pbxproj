@@ -123,9 +123,7 @@
 				C5F4D0B8178A222900BFE5A3 /* TcpConnection.m */,
 				C5F4D0B4178892B600BFE5A3 /* TcpServer.h */,
 				C5F4D0B5178892B600BFE5A3 /* TcpServer.m */,
-				C5F4D0CC179224EC00BFE5A3 /* HelloServer.m */,
-				C5F4D0D01792267400BFE5A3 /* EchoServer.m */,
-				C5F4D0D21793706B00BFE5A3 /* FileServer.m */,
+				C5F4D0D51795618700BFE5A3 /* examples */,
 			);
 			path = http;
 			sourceTree = "<group>";
@@ -136,6 +134,16 @@
 				C547216D17828B3E00851DDA /* http-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C5F4D0D51795618700BFE5A3 /* examples */ = {
+			isa = PBXGroup;
+			children = (
+				C5F4D0CC179224EC00BFE5A3 /* HelloServer.m */,
+				C5F4D0D01792267400BFE5A3 /* EchoServer.m */,
+				C5F4D0D21793706B00BFE5A3 /* FileServer.m */,
+			);
+			name = examples;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
