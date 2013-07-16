@@ -10,6 +10,8 @@
 
 #import "HttpError.h"
 
+NSUInteger const HttpHeaderSizeLimit = 1024 * 1024;
+
 void HttpServerReleaseDelegate(HttpServer *server) {
     if([server.delegate isKindOfClass:[HttpServerBlockDelegate class]]) {
         [server.delegate release];
@@ -125,6 +127,12 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     }
     
     [headerBuffer appendData:data];
+    
+    if([headerBuffer length] > HttpHeaderSizeLimit) {
+        // Header too long
+        [connection close];
+        return;
+    }
     
     NSRange terminator = [headerBuffer rangeOfData:[NSData dataWithBytes:"\r\n\r\n" length:4]
                                            options:0
