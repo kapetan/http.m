@@ -87,6 +87,10 @@ int main(int argc, const char * argv[]) {
 
 When no `content-length` value is set and the `response.write` method is called, chunked transfer encoding is used. Note that when calling one of the `response.writeHeaderStatus` methods the `transfer-encoding` should be set explicitly.
 
+### Examples
+
+Each file in the examples directory defines a create server function. E.g. `CreateFileServer(NSString *base)` creates a `HttpServer` instance, which serves files relative to the given base directory.
+
 # Limitations
 
 There are multiple limitations, which may be fixed in the future.
