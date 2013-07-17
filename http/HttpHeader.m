@@ -9,6 +9,11 @@
 #import "HttpHeader.h"
 #import "HttpError.h"
 
+#define HttpHeaderError(message) \
+    if(error != NULL) *error = NSErrorWithReason(HttpErrorUnparsableHeader, message); \
+    [self release]; \
+    return nil;
+
 NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
     return [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
@@ -54,18 +59,17 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
         NSArray *firstLine = [[fields objectAtIndex:0]
                          componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         
+        if([firstLine count] != 3) {
+            HttpHeaderError(@"Invalid first line");
+        }
+        
         NSInteger i = 1;
         NSString *field;
         while(i < [fields count] && [(field = [fields objectAtIndex:i]) length] > 0) {
             NSRange separator = [field rangeOfString:@":"];
             
             if(separator.location == NSNotFound) {
-                if(error != NULL) {
-                    *error = NSErrorWithReason(HttpErrorUnparsableHeader, @"Invalid header field");
-                }
-                
-                [self release];
-                return nil;
+                HttpHeaderError(@"Invalid header field");
             }
             
             NSString *fieldName = [NSStringTrimmedByWhiteSpace([field substringToIndex:separator.location]) lowercaseString];
@@ -81,12 +85,7 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
         }
         
         if([[fields objectAtIndex:i] length] != 0 || [fields count] - 1 == i) {
-            if(error != NULL) {
-                *error = NSErrorWithReason(HttpErrorUnparsableHeader, @"Invalid end of headers");
-            }
-            
-            [self release];
-            return nil;
+            HttpHeaderError(@"Invalid end of headers");
         }
         
         self->line = [[NSMutableArray alloc] initWithArray:firstLine];
@@ -174,7 +173,7 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
 -(id) init {
     if(self = [super init]) {
         self.method = HttpMethodGet;
-        self.url = @"/";
+        self.url = [[[HttpUrl alloc] init] autorelease];
         self.httpVersion = @"HTTP/1.1";
     }
     
@@ -189,12 +188,12 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     [line replaceObjectAtIndex:0 withObject:HttpMethodName(method)];
 }
 
--(NSString *) url {
-    return [line objectAtIndex:1];
+-(HttpUrl *) url {
+    return [[[HttpUrl alloc] initWithString:[line objectAtIndex:1]] autorelease];
 }
 
--(void) setUrl:(NSString *)url {
-    [line replaceObjectAtIndex:1 withObject:url];
+-(void) setUrl:(HttpUrl *)url {
+    [line replaceObjectAtIndex:1 withObject:[url serialize]];
 }
 
 -(NSString *) httpVersion {

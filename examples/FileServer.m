@@ -54,7 +54,7 @@ static HttpServer *CreateFileServer(NSString *base) {
         
         // Resolve requested path to absolute url
         NSString *url = [base stringByAppendingPathComponent:
-                         [request.header.url stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                         [request.header.url.pathname stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
         
         BOOL isDirectory;
         BOOL exists = [fs fileExistsAtPath:url isDirectory:&isDirectory];

@@ -10,6 +10,7 @@
 
 #import "HttpStatusCodes.h"
 #import "HttpHeaderConstants.h"
+#import "HttpUrl.h"
 
 @interface HttpHeader : NSObject
 @property (assign, nonatomic) NSInteger contentLength;
@@ -27,7 +28,7 @@
 
 @interface HttpRequestHeader : HttpHeader
 @property (nonatomic) HttpMethod method;
-@property (retain, nonatomic) NSString *url;
+@property (retain, nonatomic) HttpUrl *url;
 @property (retain, nonatomic) NSString *httpVersion;
 
 -(BOOL) hasBody;
