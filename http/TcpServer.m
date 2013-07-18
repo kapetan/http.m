@@ -83,6 +83,8 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
     if(!port) {
         NSData *addr = (NSData *) CFSocketCopyAddress(ipv4Socket);
         port = ntohs(((struct sockaddr_in *) [addr bytes])->sin_port);
+        
+        [addr release];
     }
     
     // IPv6 socket
