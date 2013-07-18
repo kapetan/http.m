@@ -34,16 +34,14 @@ NSDictionary *ParseQuery(NSString *search) {
         return [NSDictionary dictionary];
     }
     
-    search = UrlDecode(search);
-    
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
     NSArray *pairs = [search componentsSeparatedByString:@"&"];
     
     for(NSString *p in pairs) {
         NSArray *pair = [p componentsSeparatedByString:@"="];
-        id value = [pair count] < 2 || ![[pair objectAtIndex:1] length] ? [NSNull null] : [pair objectAtIndex:1];
+        id value = [pair count] < 2 || ![[pair objectAtIndex:1] length] ? [NSNull null] : UrlDecode([pair objectAtIndex:1]);
         
-        [result setObject:value forKey:[pair objectAtIndex:0]];
+        [result setObject:value forKey:UrlDecode([pair objectAtIndex:0])];
     }
 
     return [result autorelease];
