@@ -69,7 +69,7 @@ NSString *SerializeQuery(NSDictionary *query) {
         self->href = @"/";
         self->pathname = @"/";
         self->search = nil;
-        self->query = [[NSMutableDictionary alloc] init];
+        self->query = [[NSDictionary alloc] init];
     }
     
     return self;
@@ -89,32 +89,34 @@ NSString *SerializeQuery(NSDictionary *query) {
             self->search = [[url substringFromIndex:questionmark.location] retain];
         }
         
-        if(self->search) {
-            self->query = [[NSMutableDictionary alloc] initWithDictionary:ParseQuery(self->search)];
-        } else {
-            self->query = [[NSMutableDictionary alloc] init];
-        }
+        self->query = self->search ? [ParseQuery(self->search) retain] : [[NSDictionary alloc] init];
     }
     
     return self;
 }
 
 -(id) initWithPathname:(NSString *)path query:(NSDictionary *)q {
-    if(self = [self init]) {
+    if(self = [super init]) {
         self->pathname = [path retain];
-        self->query = [[NSMutableDictionary alloc] initWithDictionary:q];
+        self->query = [q retain];
+        self->search = [[self serializeQuery] retain];
+        self->href = [[self serialize] retain];
     }
     
     return self;
 }
 
--(id) initWithPathname:(NSString *)pathname {
-    return [self initWithPathname:pathname query:[NSDictionary dictionary]];
+-(id) initWithPathname:(NSString *)path {
+    return [self initWithPathname:path query:[NSDictionary dictionary]];
 }
 
 -(NSString *) serialize {
     return [query count] ? [NSString stringWithFormat:@"%@?%@", pathname, SerializeQuery(query)] :
                             [[pathname copy] autorelease];
+}
+
+-(NSString *) serializeQuery {
+    return [query count] ? [NSString stringWithFormat:@"?%@", SerializeQuery(query)] : nil;
 }
 
 -(NSString *) description {

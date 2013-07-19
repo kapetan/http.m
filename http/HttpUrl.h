@@ -16,9 +16,9 @@ NSString *SerializeQuery(NSDictionary *query);
 
 @interface HttpUrl : NSObject
 @property (readonly, nonatomic) NSString *href;
-@property (retain, nonatomic) NSString *pathname;
+@property (readonly, nonatomic) NSString *pathname;
 @property (readonly, nonatomic) NSString *search;
-@property (readonly, nonatomic) NSMutableDictionary *query;
+@property (readonly, nonatomic) NSDictionary *query;
 
 -(id) initWithString:(NSString*)href;
 -(id) initWithPathname:(NSString *)pathname query:(NSDictionary *)query;
