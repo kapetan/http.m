@@ -9,8 +9,17 @@
 #import <Foundation/Foundation.h>
 
 #import "HttpStatusCodes.h"
-#import "HttpHeaderConstants.h"
 #import "HttpUrl.h"
+
+NSString *const HttpMethodGet;
+NSString *const HttpMethodPost;
+NSString *const HttpMethodHead;
+NSString *const HttpMethodPut;
+NSString *const HttpMethodDelete;
+NSString *const HttpMethodTrace;
+NSString *const HttpMethodOptions;
+NSString *const HttpMethodConnect;
+NSString *const HttpMethodPath;
 
 @interface HttpHeader : NSObject
 @property (assign, nonatomic) NSInteger contentLength;
@@ -27,7 +36,7 @@
 @end
 
 @interface HttpRequestHeader : HttpHeader
-@property (nonatomic) HttpMethod method;
+@property (retain, nonatomic) NSString *method;
 @property (retain, nonatomic) HttpUrl *url;
 @property (retain, nonatomic) NSString *httpVersion;
 

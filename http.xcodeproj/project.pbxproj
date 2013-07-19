@@ -18,7 +18,6 @@
 		C5F4D0BF178C527B00BFE5A3 /* HttpServerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0BE178C527B00BFE5A3 /* HttpServerRequest.m */; };
 		C5F4D0C2178CBF8200BFE5A3 /* HttpServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0C1178CBF8200BFE5A3 /* HttpServer.m */; };
 		C5F4D0C5178CC02D00BFE5A3 /* HttpServerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0C4178CC02D00BFE5A3 /* HttpServerResponse.m */; };
-		C5F4D0C8178E179A00BFE5A3 /* HttpHeaderConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0C7178E179A00BFE5A3 /* HttpHeaderConstants.m */; };
 		C5F4D0CD179224EC00BFE5A3 /* HelloServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0CC179224EC00BFE5A3 /* HelloServer.m */; };
 		C5F4D0D11792267400BFE5A3 /* EchoServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0D01792267400BFE5A3 /* EchoServer.m */; };
 		C5F4D0D31793706C00BFE5A3 /* FileServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F4D0D21793706B00BFE5A3 /* FileServer.m */; };
@@ -59,8 +58,6 @@
 		C5F4D0C1178CBF8200BFE5A3 /* HttpServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpServer.m; sourceTree = "<group>"; };
 		C5F4D0C3178CC02D00BFE5A3 /* HttpServerResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpServerResponse.h; sourceTree = "<group>"; };
 		C5F4D0C4178CC02D00BFE5A3 /* HttpServerResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpServerResponse.m; sourceTree = "<group>"; };
-		C5F4D0C6178E179A00BFE5A3 /* HttpHeaderConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpHeaderConstants.h; sourceTree = "<group>"; };
-		C5F4D0C7178E179A00BFE5A3 /* HttpHeaderConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpHeaderConstants.m; sourceTree = "<group>"; };
 		C5F4D0CC179224EC00BFE5A3 /* HelloServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HelloServer.m; path = examples/HelloServer.m; sourceTree = SOURCE_ROOT; };
 		C5F4D0D01792267400BFE5A3 /* EchoServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EchoServer.m; path = examples/EchoServer.m; sourceTree = SOURCE_ROOT; };
 		C5F4D0D21793706B00BFE5A3 /* FileServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileServer.m; path = examples/FileServer.m; sourceTree = SOURCE_ROOT; };
@@ -111,8 +108,6 @@
 				C5F4D0AF1784D25100BFE5A3 /* HttpError.m */,
 				C547217517828B5A00851DDA /* HttpHeader.h */,
 				C547217617828B5A00851DDA /* HttpHeader.m */,
-				C5F4D0C6178E179A00BFE5A3 /* HttpHeaderConstants.h */,
-				C5F4D0C7178E179A00BFE5A3 /* HttpHeaderConstants.m */,
 				C5F4D0C0178CBF8200BFE5A3 /* HttpServer.h */,
 				C5F4D0C1178CBF8200BFE5A3 /* HttpServer.m */,
 				C5F4D0BD178C527B00BFE5A3 /* HttpServerRequest.h */,
@@ -211,7 +206,6 @@
 				C5F4D0BF178C527B00BFE5A3 /* HttpServerRequest.m in Sources */,
 				C5F4D0C2178CBF8200BFE5A3 /* HttpServer.m in Sources */,
 				C5F4D0C5178CC02D00BFE5A3 /* HttpServerResponse.m in Sources */,
-				C5F4D0C8178E179A00BFE5A3 /* HttpHeaderConstants.m in Sources */,
 				C5F4D0CD179224EC00BFE5A3 /* HelloServer.m in Sources */,
 				C5F4D0D11792267400BFE5A3 /* EchoServer.m in Sources */,
 				C5F4D0D31793706C00BFE5A3 /* FileServer.m in Sources */,

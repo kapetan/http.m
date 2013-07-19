@@ -14,6 +14,16 @@
     [self release]; \
     return nil;
 
+NSString *const HttpMethodGet = @"GET";
+NSString *const HttpMethodPost = @"POST";
+NSString *const HttpMethodHead = @"HEAD";
+NSString *const HttpMethodPut = @"PUT";
+NSString *const HttpMethodDelete = @"DELETE";
+NSString *const HttpMethodTrace = @"TRACE";
+NSString *const HttpMethodOptions = @"OPTIONS";
+NSString *const HttpMethodConnect = @"CONNECT";
+NSString *const HttpMethodPath = @"PATH";
+
 NSString* NSStringTrimmedByWhiteSpace(NSString *str) {
     return [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
@@ -180,12 +190,12 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     return self;
 }
 
--(HttpMethod) method {
-    return HttpMethodValue([line objectAtIndex:0]);
+-(NSString *) method {
+    return [line objectAtIndex:0];
 }
 
--(void) setMethod:(HttpMethod)method {
-    [line replaceObjectAtIndex:0 withObject:HttpMethodName(method)];
+-(void) setMethod:(NSString *)method {
+    [line replaceObjectAtIndex:0 withObject:method];
 }
 
 -(HttpUrl *) url {
