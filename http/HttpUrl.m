@@ -39,9 +39,16 @@ NSDictionary *ParseQuery(NSString *search) {
     
     for(NSString *p in pairs) {
         NSArray *pair = [p componentsSeparatedByString:@"="];
-        id value = [pair count] < 2 || ![[pair objectAtIndex:1] length] ? [NSNull null] : UrlDecode([pair objectAtIndex:1]);
         
-        [result setObject:value forKey:UrlDecode([pair objectAtIndex:0])];
+        id value = [pair count] < 2 || ![[pair objectAtIndex:1] length] ? [NSNull null] : UrlDecode([pair objectAtIndex:1]);
+        NSString *key = UrlDecode([pair objectAtIndex:0]);
+        
+        // Could not url decode. Invalid encoded characters.
+        if(!value || !key) {
+            return @{};
+        }
+        
+        [result setObject:value forKey:key];
     }
 
     return [result autorelease];
