@@ -258,7 +258,7 @@ NSDateFormatter *NSDateFormatterCreateRFC1123() {
     [line replaceObjectAtIndex:1 withObject:[NSString stringWithFormat:@"%ld", (long) statusCode]];
     
     if(!reasonPhraseAssigned) {
-        self.reasonPhrase = HttpStatusCodeReasonName(HttpStatusCodeOk);
+        self.reasonPhrase = HttpStatusCodeReasonName(statusCode);
         reasonPhraseAssigned = NO;
     }
 }
