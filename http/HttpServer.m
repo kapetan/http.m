@@ -64,14 +64,16 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 
 -(void) server:(TcpServer *)server acceptedConnection:(TcpConnection *)connection {
     [httpServer addConnection:connection];
+    [httpServer.delegate server:httpServer acceptedConnection:connection];
 }
 
 -(void) server:(TcpServer *)server errorOccurred:(NSError *)error {
-    [httpServer.delegate server:self errorOccurred:error];
+    [httpServer.delegate server:httpServer errorOccurred:error];
 }
 
 -(void) serverDidClose:(TcpServer *)server {
-    [httpServer close];
+    [httpServer removeAllConnections];
+    [httpServer.delegate serverDidClose:httpServer];
 }
 @end
 
@@ -242,13 +244,6 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 
 -(void) close {
     [server close];
-    
-    for(TcpConnection *connection in connections) {
-        [connection close];
-    }
-    
-    [connections removeAllObjects];
-    [self.delegate serverDidClose:self];
 }
 
 -(void) setDelegate:(id)newDelegate {
@@ -257,8 +252,6 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) removeConnection:(TcpConnection *)connection {
-    [connection close];
-    
     [connection.delegate release];
     connection.delegate = nil;
     
@@ -266,10 +259,23 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) addConnection:(TcpConnection *)connection {
+    if(server.closed) {
+        [connection close];
+        return;
+    }
+    
     connection.delegate = [[HttpServerConnectionDelegate alloc] initWithServer:self];
     [connections addObject:connection];
+}
+
+-(void) removeAllConnections {
+    NSArray *conns = [[NSArray alloc] initWithArray:connections];
     
-    [self.delegate server:self acceptedConnection:connection];
+    for(TcpConnection *connection in conns) {
+        [connection close];
+    }
+    
+    [conns release];
 }
 
 -(void) dealloc {

@@ -107,6 +107,8 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
         [date release];
     }
     
+    [header setValue:@"close" forField:@"connection"];
+    
     [connection write:[header toString] encoding:NSASCIIStringEncoding];
     
     headerSent = YES;
@@ -135,7 +137,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
         return;
     }
     
-    [connection write:[NSString stringWithFormat:@"%lx\r\n", length] encoding:NSASCIIStringEncoding];
+    [connection write:[NSString stringWithFormat:@"%lx\r\n", (unsigned long)length] encoding:NSASCIIStringEncoding];
 }
 
 -(void) writeChunkTrailer {

@@ -45,6 +45,7 @@ NSDictionary *ParseQuery(NSString *search) {
         
         // Could not url decode. Invalid encoded characters.
         if(!value || !key) {
+            [result release];
             return @{};
         }
         

@@ -37,10 +37,12 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
 }
 
 @synthesize delegate;
+@synthesize closed;
 
 -(id) init {
     if(self = [super init]) {
         self->delegate = nil;
+        self->closed = NO;
     }
     
     return self;
@@ -113,9 +115,11 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
 }
 
 -(void) close {
-    if(!ipv4Socket && !ipv6Socket) {
+    if(closed) {
         return;
     }
+    
+    closed = YES;
     
     if(ipv4Socket) {
         CFSocketInvalidate(ipv4Socket);

@@ -26,6 +26,7 @@ enum {
 
 @interface TcpServer : NSObject
 @property (assign, nonatomic) id delegate;
+@property (readonly, nonatomic) BOOL closed;
 
 -(void) listenOnPort:(NSInteger) port;
 -(void) close;

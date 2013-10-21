@@ -11,6 +11,10 @@
 NSUInteger const TcpConnectionBufferLength = 16 * 1024;
 NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 
+#define ONCE(guard) \
+    if(guard) return; \
+    guard = YES;
+
 @implementation TcpConnection {
     NSOutputStream *output;
     NSInputStream *input;
@@ -19,11 +23,16 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
     NSInteger bufferPosition;
     
     NSInteger open;
+    BOOL hasSpaceAvailable;
     BOOL bufferFull;
     BOOL closeOnDrain;
+    
+    BOOL outputClosed;
+    BOOL inputClosed;
 }
 
 @synthesize delegate;
+@synthesize closed;
 
 -(id)init {
     if(self = [super init]) {
@@ -35,8 +44,13 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
         self->delegate = nil;
         
         self->open = 0;
+        self->hasSpaceAvailable = NO;
+        self->closed = NO;
         self->bufferFull = NO;
         self->closeOnDrain = NO;
+        
+        self->outputClosed = NO;
+        self->inputClosed = NO;
     }
     
     return self;
@@ -78,17 +92,32 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 }
 
 -(void) close {
-    if([input streamStatus] == NSStreamStatusClosed || [output streamStatus] == NSStreamStatusClosed) {
-        return;
-    }
+    ONCE(closed);
     
-    for(NSStream *stream in @[input, output]) {
-        [stream setDelegate:nil];
-        [stream close];
-        [stream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    }
+    [self closeInput];
+    [self closeOutput];
     
     [[self delegate] connectionDidClose:self];
+}
+
+-(void) closeOutput {
+    ONCE(outputClosed);
+    
+    if([output streamStatus] != NSStreamStatusClosed) {
+        [output setDelegate:nil];
+        [output close];
+        [output removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    }
+}
+
+-(void) closeInput {
+    ONCE(inputClosed);
+    
+    if([input streamStatus] != NSStreamStatusClosed) {
+        [input setDelegate:nil];
+        [input close];
+        [input removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    }
 }
 
 -(void) closeAfterDrain {
@@ -103,7 +132,7 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
     if(length) {
         [buffer appendBytes:data length:length];
         
-        if([output hasSpaceAvailable]) {
+        if(hasSpaceAvailable) {
             [self writeBuffer];
         }
     }
@@ -149,15 +178,19 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
             
             break;
         case NSStreamEventHasSpaceAvailable:
-            if(aStream == output && [buffer length]) {
-                [self writeBuffer];
-                
-                if(bufferFull && !bufferPosition) {
-                    bufferFull = NO;
-                    [[self delegate] connectionDidDrain:self];
-                }
-                if(closeOnDrain && !bufferPosition) {
-                    [self close];
+            if(aStream == output) {
+                if([buffer length]) {
+                    [self writeBuffer];
+                    
+                    if(bufferFull && !bufferPosition) {
+                        bufferFull = NO;
+                        [[self delegate] connectionDidDrain:self];
+                    }
+                    if(closeOnDrain && !bufferPosition) {
+                        [self close];
+                    }
+                } else {
+                    hasSpaceAvailable = YES;
                 }
             }
             
@@ -165,9 +198,19 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
         case NSStreamEventErrorOccurred: {
             NSError *err = [aStream streamError];
             [[self delegate] connection:self errorOccurred:err];
+            
+            [self close];
+            
+            break;
         }
         case NSStreamEventEndEncountered:
-            [self close];
+            if(aStream == output) {
+                [self closeOutput];
+            }
+            if(aStream == input) {
+                [self closeInput];
+            }
+            
             break;
         case NSStreamEventNone:
             break;

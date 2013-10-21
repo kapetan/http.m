@@ -22,6 +22,7 @@
 @interface TcpConnection : NSObject <NSStreamDelegate>
 @property (assign, nonatomic) id delegate;
 @property (readonly, nonatomic) NSUInteger bufferSize;
+@property (readonly, nonatomic) BOOL closed;
 
 -(id) initWithInputStream:(NSInputStream*)ins outputStream:(NSOutputStream*)outs;
 -(id) initWithHost:(NSString*)host port:(NSInteger)port;
