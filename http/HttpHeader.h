@@ -21,6 +21,8 @@ NSString *const HttpMethodOptions;
 NSString *const HttpMethodConnect;
 NSString *const HttpMethodPath;
 
+NSDateFormatter *NSDateFormatterCreateRFC1123();
+
 @interface HttpHeader : NSObject
 @property (assign, nonatomic) NSInteger contentLength;
 @property (assign, nonatomic) NSDate *date;
