@@ -14,13 +14,13 @@
 @class HttpServerResponse;
 
 @protocol HttpServerResponseDelegate <NSObject>
--(void) responseDidEnd:(HttpServerResponse*)response;
+-(void) responseDidFinish:(HttpServerResponse*)response;
 -(void) responseDidDrain:(HttpServerResponse*)response;
 -(void) responseDidClose:(HttpServerResponse*)response;
 @end
 
 @interface HttpServerResponseBlockDelegate : NSObject <HttpServerResponseDelegate>
-@property (copy, nonatomic) void (^end)(HttpServerResponse*);
+@property (copy, nonatomic) void (^finish)(HttpServerResponse*);
 @property (copy, nonatomic) void (^drain)(HttpServerResponse*);
 @property (copy, nonatomic) void (^close)(HttpServerResponse*);
 @end

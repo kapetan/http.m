@@ -19,8 +19,8 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     if(self.drain) self.drain(response);
 }
 
--(void) responseDidEnd:(HttpServerResponse *)response {
-    if(self.end) self.end(response);
+-(void) responseDidFinish:(HttpServerResponse *)response {
+    if(self.finish) self.finish(response);
 }
 
 -(void) responseDidClose:(HttpServerResponse *)response {
@@ -29,7 +29,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 
 -(void) dealloc {
     [self.drain release];
-    [self.end release];
+    [self.finish release];
     [self.close release];
     
     [super dealloc];

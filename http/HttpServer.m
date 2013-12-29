@@ -101,9 +101,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     return self;
 }
 
--(void) connectionDidOpen:(TcpConnection *)connection {
-    
-}
+-(void) connectionDidOpen:(TcpConnection *)connection {}
 
 -(void) connectionDidDrain:(TcpConnection *)connection {
     [response.delegate responseDidDrain:response];
@@ -126,7 +124,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) connectionDidFinish:(TcpConnection *)connection {
-    [response.delegate responseDidEnd:response];
+    [response.delegate responseDidFinish:response];
     [connection destroy];
 }
 
@@ -287,12 +285,11 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) dealloc {
-    [server.delegate release];
+    HttpServerReleaseDelegate(self);
     server.delegate = nil;
     
     [server release];
     [connections release];
-    HttpServerReleaseDelegate(self);
     
     [super dealloc];
 }
