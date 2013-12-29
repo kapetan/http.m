@@ -25,14 +25,15 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
     NSInteger open;
     BOOL hasSpaceAvailable;
     BOOL bufferFull;
-    BOOL closeOnDrain;
     
-    BOOL outputClosed;
-    BOOL inputClosed;
+    BOOL destroyed;
+    BOOL outputDestroyed;
+    BOOL inputDestroyed;
 }
 
 @synthesize delegate;
-@synthesize closed;
+@synthesize ended;
+@synthesize finished;
 
 -(id)init {
     if(self = [super init]) {
@@ -42,15 +43,16 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
         
         self->bufferPosition = 0;
         self->delegate = nil;
+        self->ended = NO;
+        self->finished = NO;
         
         self->open = 0;
         self->hasSpaceAvailable = NO;
-        self->closed = NO;
         self->bufferFull = NO;
-        self->closeOnDrain = NO;
         
-        self->outputClosed = NO;
-        self->inputClosed = NO;
+        self->destroyed = NO;
+        self->outputDestroyed = NO;
+        self->inputDestroyed = NO;
     }
     
     return self;
@@ -80,7 +82,7 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 }
 
 -(NSUInteger) bufferSize {
-    return [buffer length];
+    return buffer.length;
 }
 
 -(void) open {
@@ -91,41 +93,51 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
     }
 }
 
--(void) close {
-    ONCE(closed);
+-(void) destroy {
+    ONCE(destroyed);
     
-    [self closeInput];
-    [self closeOutput];
+    [self destroyInput];
+    [self destroyOutput];
     
-    [[self delegate] connectionDidClose:self];
+    [self.delegate connectionDidClose:self];
 }
 
--(void) closeOutput {
-    ONCE(outputClosed);
+-(void) destroyOutput {
+    ONCE(outputDestroyed);
     
     if([output streamStatus] != NSStreamStatusClosed) {
         [output setDelegate:nil];
         [output close];
         [output removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     }
+    
+    if(inputDestroyed) {
+        [self destroy];
+    }
 }
 
--(void) closeInput {
-    ONCE(inputClosed);
+-(void) destroyInput {
+    ONCE(inputDestroyed);
     
     if([input streamStatus] != NSStreamStatusClosed) {
         [input setDelegate:nil];
         [input close];
         [input removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     }
+    
+    if(outputDestroyed) {
+        [self destroy];
+    }
 }
 
--(void) closeAfterDrain {
-    if(![buffer length]) {
-        [self close];
-    }
+-(void) end {
+    ONCE(ended);
     
-    closeOnDrain = YES;
+    if(!buffer.length) {
+        finished = YES;
+        [self.delegate connectionDidFinish:self];
+        [self destroyOutput];
+    }
 }
 
 -(BOOL) write:(uint8_t *)data length:(NSUInteger)length {
@@ -137,29 +149,25 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
         }
     }
     
-    BOOL mark = [buffer length] <= TcpConnectionBufferLength;
+    BOOL mark = buffer.length <= TcpConnectionBufferLength;
     bufferFull = bufferFull || !mark;
     
     return mark;
 }
 
 -(BOOL) write:(NSData *)data {
-    return [self write:(uint8_t *)[data bytes] length:[data length]];
+    return [self write:(uint8_t *)[data bytes] length:data.length];
 }
 
 -(BOOL) write:(NSString *)data encoding:(NSStringEncoding)encoding {
     return [self write:[data dataUsingEncoding:encoding]];
 }
 
--(void) setDelegate:(id)newDelegate {
-    delegate = newDelegate;
-}
-
 -(void) stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode {
     switch (eventCode) {
         case NSStreamEventOpenCompleted:
             if(++open == 2) {
-                [[self delegate] connectionDidOpen:self];
+                [self.delegate connectionDidOpen:self];
             }
             
             break;
@@ -168,9 +176,9 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
                 uint8_t buf[TcpConnectionIOBufferLength];
                 NSInteger len = [input read:buf maxLength:TcpConnectionIOBufferLength];
                 
-                if(len) {
+                if(len > 0) {
                     NSData *data = [[NSData alloc] initWithBytes:buf length:len];
-                    [[self delegate] connection:self didReceiveData:data];
+                    [self.delegate connection:self didReceiveData:data];
                     
                     [data release];
                 }
@@ -179,15 +187,17 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
             break;
         case NSStreamEventHasSpaceAvailable:
             if(aStream == output) {
-                if([buffer length]) {
+                if(buffer.length) {
                     [self writeBuffer];
                     
                     if(bufferFull && !bufferPosition) {
                         bufferFull = NO;
-                        [[self delegate] connectionDidDrain:self];
+                        [self.delegate connectionDidDrain:self];
                     }
-                    if(closeOnDrain && !bufferPosition) {
-                        [self close];
+                    if(ended && !bufferPosition) {
+                        finished = YES;
+                        [self.delegate connectionDidFinish:self];
+                        [self destroyOutput];
                     }
                 } else {
                     hasSpaceAvailable = YES;
@@ -197,18 +207,19 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
             break;
         case NSStreamEventErrorOccurred: {
             NSError *err = [aStream streamError];
-            [[self delegate] connection:self errorOccurred:err];
+            [self.delegate connection:self errorOccurred:err];
             
-            [self close];
+            [self destroy];
             
             break;
         }
         case NSStreamEventEndEncountered:
             if(aStream == output) {
-                [self closeOutput];
+                [self destroyOutput];
             }
             if(aStream == input) {
-                [self closeInput];
+                [self.delegate connectionDidEnd:self];
+                [self destroyInput];
             }
             
             break;
@@ -219,7 +230,7 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
 
 -(void) writeBuffer {
     uint8_t *from = ((uint8_t *) [buffer mutableBytes]) + bufferPosition;
-    NSUInteger bufferLength = [buffer length];
+    NSUInteger bufferLength = buffer.length;
     NSInteger len = bufferLength - bufferPosition;
     
     len = len > TcpConnectionIOBufferLength ? TcpConnectionIOBufferLength : len;
@@ -238,11 +249,13 @@ NSUInteger const TcpConnectionIOBufferLength = 4 * 1024;
     }
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self.delegate selector:@selector(connectionDidSendData:) object:self];
-    [[self delegate] performSelector:@selector(connectionDidSendData:) withObject:self afterDelay:0];
+    [self.delegate performSelector:@selector(connectionDidSendData:) withObject:self afterDelay:0];
 }
 
 -(void)dealloc {
-    [self close];
+    self.delegate = nil;
+    
+    [self destroy];
     
     [buffer release];
     [input release];

@@ -31,8 +31,6 @@
 
 @property (assign, nonatomic) id delegate;
 
-@property (readonly, nonatomic) BOOL ended;
-
 -(id) initWithConnection:(TcpConnection*)connection;
 
 -(BOOL) write:(uint8_t*)data length:(NSUInteger)length;

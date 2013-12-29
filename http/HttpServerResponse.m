@@ -44,7 +44,6 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
 @synthesize header;
 @synthesize connection;
 @synthesize delegate;
-@synthesize ended;
 
 -(id) initWithConnection:(id)conn {
     if(self = [super init]) {
@@ -128,8 +127,7 @@ void HttpServerResponseReleaseDelegate(HttpServerResponse *response) {
     [self writeChunkHeader:0];
     [self writeChunkTrailer];
     
-    ended = YES;
-    [connection closeAfterDrain];
+    [connection end];
 }
 
 -(void) writeChunkHeader:(NSUInteger)length {

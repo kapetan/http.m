@@ -110,12 +110,24 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 }
 
 -(void) connectionDidClose:(TcpConnection *)connection {
-    if(!response.ended || connection.bufferSize) {
+    if(!connection.finished) {
         [response.delegate responseDidClose:response];
     }
     
     [server removeConnection:connection];
     connectionClosed = YES;
+}
+
+-(void) connectionDidEnd:(TcpConnection *)connection {
+    if(!request || bodyLength) {
+        // Did not read the entire request
+        [connection destroy];
+    }
+}
+
+-(void) connectionDidFinish:(TcpConnection *)connection {
+    [response.delegate responseDidEnd:response];
+    [connection destroy];
 }
 
 -(void) connection:(TcpConnection *)connection errorOccurred:(NSError *)error {
@@ -132,7 +144,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     
     if([headerBuffer length] > HttpHeaderSizeLimit) {
         // Header too long
-        [connection close];
+        [connection destroy];
         return;
     }
     
@@ -155,7 +167,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     
     if(!header) {
         // Invalid header
-        [connection close];
+        [connection destroy];
         return;
     }
     
@@ -181,11 +193,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     headerBuffer = nil;
 }
 
--(void) connectionDidSendData:(TcpConnection *)connection {
-    if(response.ended && !connection.bufferSize) {
-        [response.delegate responseDidEnd:response];
-    }
-}
+-(void) connectionDidSendData:(TcpConnection *)connection {}
 
 -(void) requestBody:(NSArray *)arguments {
     [self requestBody:[arguments objectAtIndex:0] data:[arguments objectAtIndex:1]];
@@ -198,7 +206,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
         [server.delegate server:server client:connection
                   errorOccurred:NSErrorWithReason(HttpErrorUnexpectedBody, @"Unexpected body length")];
         
-        [connection close];
+        [connection destroy];
         return;
     }
     
@@ -260,7 +268,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
 
 -(void) addConnection:(TcpConnection *)connection {
     if(server.closed) {
-        [connection close];
+        [connection destroy];
         return;
     }
     
@@ -272,7 +280,7 @@ void HttpServerReleaseDelegate(HttpServer *server) {
     NSArray *conns = [[NSArray alloc] initWithArray:connections];
     
     for(TcpConnection *connection in conns) {
-        [connection close];
+        [connection destroy];
     }
     
     [conns release];

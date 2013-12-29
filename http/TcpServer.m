@@ -136,10 +136,6 @@ void TcpServerAcceptCallback(CFSocketRef socket, CFSocketCallBackType type, CFDa
     [[self delegate] serverDidClose:self];
 }
 
--(void) setDelegate:(id)newDelegate {
-    delegate = newDelegate;
-}
-
 -(void) acceptConnection:(CFSocketNativeHandle)handle {
     CFReadStreamRef read;
     CFWriteStreamRef write;
